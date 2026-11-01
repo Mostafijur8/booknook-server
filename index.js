@@ -23,7 +23,7 @@ export async function connectToMongoDB() {
 connectToMongoDB();
 
 app.get("/", (req, res) => {
-  res.send("Welcome to BookNook Server!");
+  res.send("Welcome to BookNook Server! hello world!");
 });
 
 // Vercel invokes the exported Express app as a serverless function.
