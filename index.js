@@ -26,6 +26,12 @@ app.get("/", (req, res) => {
   res.send("Welcome to BookNook Server!");
 });
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+// Vercel invokes the exported Express app as a serverless function.
+
+if (!process.env.VERCEL) {
+  app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+  });
+}
+
+export default app;
