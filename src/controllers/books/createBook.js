@@ -1,5 +1,5 @@
 // Handles the endpoint for validating and creating a book.
-import { books } from "./bookHelpers.js";
+import { BOOK_CATEGORIES, books } from "./bookHelpers.js";
 
 // Validates the submitted fields and creates a new book in MongoDB.
 export async function createBook(req, res) {
@@ -7,9 +7,11 @@ export async function createBook(req, res) {
     const { title, author, category, image, description, addedBy, totalCopies } = req.body;
 
     if (
-      !title?.trim() ||
-      !author?.trim() ||
-      !category?.trim() ||
+      typeof title !== "string" ||
+      !title.trim() ||
+      typeof author !== "string" ||
+      !author.trim() ||
+      !BOOK_CATEGORIES.includes(category) ||
       !Number.isInteger(totalCopies) ||
       totalCopies < 1
     ) {

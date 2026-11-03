@@ -5,6 +5,7 @@ import { getBookById } from "../controllers/books/getBookById.js";
 import { getBooks } from "../controllers/books/getBooks.js";
 import { updateBook } from "../controllers/books/updateBook.js";
 import { verifyToken } from "../middleware/verifyToken.js";
+import { verifyUser } from "../middleware/verifyUser.js";
 
 const router = Router();
 
@@ -15,8 +16,8 @@ router.get("/:id", getBookById);
 // Requires authentication before creating a book.
 router.post("/", verifyToken, createBook);
 // Requires authentication before updating a book.
-router.patch("/:id", verifyToken, updateBook);
+router.patch("/:id", verifyToken, verifyUser, updateBook);
 // Requires authentication before deleting a book.
-router.delete("/:id", verifyToken, deleteBook);
+router.delete("/:id", verifyToken, verifyUser, deleteBook);
 
 export default router;

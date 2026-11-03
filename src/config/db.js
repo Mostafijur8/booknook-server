@@ -10,8 +10,14 @@ export async function connectDB() {
   client = new MongoClient(process.env.MONGODB_URI);
   await client.connect();
 
+  const database = client.db(process.env.MONGODB_DATABASE || undefined);
+  await database.collection("borrows").createIndex(
+    { bookId: 1, userEmail: 1 },
+    { unique: true, name: "unique_active_borrow_per_user_and_book" },
+  );
+
   console.log("Connected to MongoDB");
-  return client.db();
+  return database;
 }
 
 export function getDB() {
@@ -19,5 +25,5 @@ export function getDB() {
     throw new Error("Database is not connected");
   }
 
-  return client.db();
+  return client.db(process.env.MONGODB_DATABASE || undefined);
 }

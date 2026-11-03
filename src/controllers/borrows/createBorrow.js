@@ -63,6 +63,12 @@ export async function createBorrow(req, res) {
     }
 
     console.error("Failed to create borrow:", error);
+    if (error?.code === 11000) {
+      return res.status(409).json({
+        message: "You have already borrowed this book.",
+      });
+    }
+
     res.status(500).json({ message: "Failed to borrow the book." });
   }
 }

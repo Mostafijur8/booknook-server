@@ -1,6 +1,6 @@
 # BookNook Server
 
-Backend for the BookNook online library project. The server uses Express.js and MongoDB, with JavaScript ES modules.
+Express and MongoDB API for the BookNook client. The frontend uses Better Auth and sends a signed JWT with protected API requests.
 
 ## Requirements
 
@@ -8,53 +8,59 @@ Backend for the BookNook online library project. The server uses Express.js and 
 - MongoDB connection string
 - Dependencies installed with `npm install`
 
-## Configuration
+## Local configuration
 
-Create a `.env` file in the project root and set `MONGODB_URI` to your MongoDB connection string. The server uses port `5000` by default; you can set `PORT` in `.env` to use another port.
+Create `.env` in this folder. Keep the MongoDB connection string private.
 
-Keep `.env` private and do not commit database credentials.
-
-## Run the server
-
-- Development: `npm run dev`
-- Production: `npm start`
-
-Both scripts start `src/index.js`. The server connects to MongoDB before listening for requests. The root endpoint is `GET /` and returns a BookNook welcome message.
-
-## Project structure
-
-```text
-src/
-├── index.js                 # Express app entry point
-├── config/
-│   └── db.js                # MongoDB connection and database access
-├── middleware/
-│   ├── verifyToken.js       # JWT verification middleware (currently empty)
-│   └── verifyUser.js        # User authorization middleware (currently empty)
-├── routes/
-│   ├── bookRoutes.js        # Book endpoints (currently empty)
-│   └── borrowRoutes.js      # Borrow endpoints (currently empty)
-├── controllers/
-│   ├── bookController.js    # Book CRUD handlers (currently empty)
-│   └── borrowController.js # Borrow and return handlers (currently empty)
-└── utils/
-    └── generateToken.js     # JWT helper (currently empty)
+```env
+PORT=5000
+MONGODB_URI=<MongoDB connection string>
+MONGODB_DATABASE=booknook
+BETTER_AUTH_URL=http://localhost:3000
+CLIENT_ORIGINS=http://localhost:3000
 ```
 
-## Planned API responsibilities
+`MONGODB_DATABASE` should point to the database used by the frontend Better Auth configuration. The server stores its collections there too. For production, set the equivalent environment variables in the server deployment. Set `BETTER_AUTH_URL` to the deployed frontend origin and `CLIENT_ORIGINS` to the allowed frontend origin.
 
-- `bookRoutes.js` maps book URLs and HTTP methods to handlers in `bookController.js`.
-- `bookController.js` will implement creating, listing, reading, updating, and deleting books.
-- `borrowRoutes.js` maps borrow and return endpoints to `borrowController.js`.
-- `borrowController.js` will implement borrowing, listing a user's borrows, and returning books. Copy counts and duplicate-borrow checks belong here.
-- `verifyToken.js` will validate JWTs for protected endpoints. `verifyUser.js` can enforce user-specific access rules.
-- `db.js` provides the MongoDB connection; database operations should use the connected database.
-- `generateToken.js` will contain the JWT creation helper if the backend needs to issue tokens.
+## Run locally
 
-## Current implementation status
+```bash
+npm install
+npm run dev
+```
 
-The project currently has MongoDB connection setup and a root welcome endpoint. The book and borrow route, controller, and authentication files are present as placeholders; their APIs and JWT behavior have not been implemented yet.
+The server listens on port `5000` by default. Its root endpoint is `GET /`.
 
-## Deployment note
+## API routes
 
-The current `vercel.json` points to the root `index.js`, while the application entry point is `src/index.js`. Update the Vercel configuration before deploying this structure.
+### Books
+
+| Method | Path | Access | Purpose |
+| --- | --- | --- | --- |
+| `GET` | `/books` | Public | List books; optional `category` and `search` query parameters |
+| `GET` | `/books/:id` | Public | Get one book |
+| `POST` | `/books` | JWT required | Add a book; the authenticated user becomes its owner |
+| `PATCH` | `/books/:id` | Owner JWT required | Update a book |
+| `DELETE` | `/books/:id` | Owner JWT required | Delete a book |
+
+Book categories are `Fiction`, `Science`, `History`, `Kids`, and `Others`.
+
+### Borrows
+
+All borrow routes require a valid Better Auth JWT in the `Authorization: Bearer <token>` header.
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` | `/borrows` | List the authenticated user's borrow records |
+| `POST` | `/borrows` | Borrow an available book; request body includes `bookId` and `returnDate` |
+| `DELETE` | `/borrows/:id` | Return a borrow record owned by the authenticated user |
+
+Borrowing reduces the available `totalCopies`; returning restores one copy. The server derives the user's email from the verified JWT and enforces one active borrow per user/book with a unique MongoDB index.
+
+## Authentication and CORS
+
+`verifyToken.js` verifies JWTs against the Better Auth JWKS endpoint at `/api/auth/jwks`. `verifyUser.js` checks book ownership before updates and deletes. Better Auth issues the JWTs, so the API does not create its own tokens. Configure `BETTER_AUTH_URL` to match the frontend auth server origin. CORS permits the configured `CLIENT_ORIGINS`; local and deployed BookNook origins are included as defaults.
+
+## Deployment
+
+`vercel.json` routes requests to `src/index.js`. Configure `MONGODB_URI`, `MONGODB_DATABASE`, and any production auth/CORS environment variables in the deployment settings. Do not commit `.env` or credentials.

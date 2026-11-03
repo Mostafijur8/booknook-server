@@ -1,6 +1,6 @@
 // Handles the endpoint for validating and updating a book.
 import { ObjectId } from "mongodb";
-import { books, isValidId } from "./bookHelpers.js";
+import { BOOK_CATEGORIES, books, isValidId } from "./bookHelpers.js";
 
 // Updates allowed fields on an existing book.
 export async function updateBook(req, res) {
@@ -19,8 +19,12 @@ export async function updateBook(req, res) {
 
     for (const field of ["title", "author", "category"]) {
       if (field in updates) {
-        if (typeof updates[field] !== "string" || !updates[field].trim()) {
-          return res.status(400).json({ message: `${field} cannot be empty.` });
+        if (
+          typeof updates[field] !== "string" ||
+          !updates[field].trim() ||
+          (field === "category" && !BOOK_CATEGORIES.includes(updates[field]))
+        ) {
+          return res.status(400).json({ message: `${field} is invalid or empty.` });
         }
         updates[field] = updates[field].trim();
       }
@@ -28,9 +32,9 @@ export async function updateBook(req, res) {
 
     if (
       "totalCopies" in updates &&
-      (!Number.isInteger(updates.totalCopies) || updates.totalCopies < 1)
+      (!Number.isInteger(updates.totalCopies) || updates.totalCopies < 0)
     ) {
-      return res.status(400).json({ message: "totalCopies must be at least 1." });
+      return res.status(400).json({ message: "totalCopies cannot be negative." });
     }
 
     if (Object.keys(updates).length === 0) {
