@@ -20,7 +20,7 @@ BETTER_AUTH_URL=http://localhost:3000
 CLIENT_ORIGINS=http://localhost:3000
 ```
 
-`MONGODB_DATABASE` should point to the database used by the frontend Better Auth configuration. The server stores its collections there too. For production, set the equivalent environment variables in the server deployment. Set `BETTER_AUTH_URL` to the deployed frontend origin and `CLIENT_ORIGINS` to the allowed frontend origin.
+`MONGODB_DATABASE` defaults to `booknook` and should match the database used by the frontend Better Auth configuration. The server stores its collections there too. For production, configure `MONGODB_URI` to the same MongoDB cluster used locally and by the frontend; the database defaults to `booknook`. Set `BETTER_AUTH_URL` to the deployed frontend origin and `CLIENT_ORIGINS` to the allowed frontend origin when needed.
 
 ## Run locally
 

@@ -1,6 +1,7 @@
 import { MongoClient } from "mongodb";
 
 let client;
+const databaseName = process.env.MONGODB_DATABASE || "booknook";
 
 export async function connectDB() {
   if (!process.env.MONGODB_URI) {
@@ -10,7 +11,7 @@ export async function connectDB() {
   client = new MongoClient(process.env.MONGODB_URI);
   await client.connect();
 
-  const database = client.db(process.env.MONGODB_DATABASE || undefined);
+  const database = client.db(databaseName);
   await database.collection("borrows").createIndex(
     { bookId: 1, userEmail: 1 },
     { unique: true, name: "unique_active_borrow_per_user_and_book" },
@@ -25,5 +26,5 @@ export function getDB() {
     throw new Error("Database is not connected");
   }
 
-  return client.db(process.env.MONGODB_DATABASE || undefined);
+  return client.db(databaseName);
 }
