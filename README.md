@@ -59,7 +59,7 @@ Borrowing reduces the available `totalCopies`; returning restores one copy. The 
 
 ## Authentication and CORS
 
-`verifyToken.js` verifies JWTs against the Better Auth JWKS endpoint at `/api/auth/jwks`. `verifyUser.js` checks book ownership before updates and deletes. Better Auth issues the JWTs, so the API does not create its own tokens. Configure `BETTER_AUTH_URL` to match the frontend auth server origin. CORS permits the configured `CLIENT_ORIGINS`; local and deployed BookNook origins are included as defaults.
+`verifyToken.js` verifies JWTs against the Better Auth JWKS endpoint at `/api/auth/jwks`. `verifyUser.js` checks book ownership before updates and deletes. Better Auth issues the JWTs, so the API does not create its own tokens. Local auth uses `BETTER_AUTH_URL`; Vercel deployments use the canonical frontend origin `https://booknook-tawny.vercel.app` for JWT issuer, audience, and JWKS. CORS permits the configured `CLIENT_ORIGINS`; local and deployed BookNook origins are included as defaults.
 
 ## Deployment
 

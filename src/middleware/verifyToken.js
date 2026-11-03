@@ -4,12 +4,11 @@ let jwks;
 
 // Uses the local auth server in development and the deployed frontend in production.
 function getAuthURL() {
-  return (
-    process.env.BETTER_AUTH_URL?.replace(/\/$/, "") ||
-    (process.env.VERCEL
-      ? "https://booknook-tawny.vercel.app"
-      : "http://localhost:3000")
-  );
+  if (process.env.VERCEL) {
+    return "https://booknook-tawny.vercel.app";
+  }
+
+  return process.env.BETTER_AUTH_URL?.replace(/\/$/, "") || "http://localhost:3000";
 }
 
 // Returns the Better Auth public signing keys.
