@@ -10,9 +10,12 @@ export async function deleteBook(req, res) {
       return res.status(400).json({ message: "Invalid book ID." });
     }
 
-    const result = await books().deleteOne({ _id: new ObjectId(id) });
+    const result = await books().deleteOne({
+      _id: new ObjectId(id),
+      "addedBy.email": req.user.email,
+    });
     if (result.deletedCount === 0) {
-      return res.status(404).json({ message: "Book not found." });
+      return res.status(404).json({ message: "Book not found or you do not own it." });
     }
 
     res.json({ message: "Book deleted successfully." });

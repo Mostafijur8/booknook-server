@@ -10,15 +10,18 @@ export async function createBook(req, res) {
       !title?.trim() ||
       !author?.trim() ||
       !category?.trim() ||
-      !addedBy?.trim() ||
       !Number.isInteger(totalCopies) ||
       totalCopies < 1
     ) {
       return res.status(400).json({
-        message: "Title, author, category, addedBy, and a valid totalCopies are required.",
+        message: "Title, author, category, and a valid totalCopies are required.",
       });
     }
 
+    const ownerName =
+      typeof addedBy?.name === "string" && addedBy.name.trim()
+        ? addedBy.name.trim()
+        : req.user.email;
     const now = new Date();
     const newBook = {
       title: title.trim(),
@@ -26,7 +29,7 @@ export async function createBook(req, res) {
       category: category.trim(),
       image: typeof image === "string" ? image.trim() : "",
       description: typeof description === "string" ? description.trim() : "",
-      addedBy: addedBy.trim(),
+      addedBy: { name: ownerName, email: req.user.email },
       totalCopies,
       createdAt: now,
       updatedAt: now,

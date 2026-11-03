@@ -38,13 +38,17 @@ export async function updateBook(req, res) {
     }
 
     updates.updatedAt = new Date();
+    const bookFilter = {
+      _id: new ObjectId(id),
+      "addedBy.email": req.user.email,
+    };
     const result = await books().updateOne(
-      { _id: new ObjectId(id) },
+      bookFilter,
       { $set: updates },
     );
 
     if (result.matchedCount === 0) {
-      return res.status(404).json({ message: "Book not found." });
+      return res.status(404).json({ message: "Book not found or you do not own it." });
     }
 
     const updatedBook = await books().findOne({ _id: new ObjectId(id) });
